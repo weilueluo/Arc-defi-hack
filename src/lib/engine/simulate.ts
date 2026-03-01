@@ -77,24 +77,17 @@ export function simulateFlow(
           });
         }
       } else if (node.type === 'filter') {
-        // Filter node: pass through if condition met
-        const data = node.data as { condition?: string; value?: string };
-        let passThrough = true;
+        // Schedule node: overrides the flowing amount with its configured amount
+        const data = node.data as { interval?: string; amount?: string };
+        const scheduleAmount = parseFloat(data.amount || '0');
+        const flowAmount = scheduleAmount > 0 ? scheduleAmount : amount;
 
-        if (data.condition === 'min_amount') {
-          passThrough = amount >= parseFloat(data.value || '0');
-        } else if (data.condition === 'max_amount') {
-          passThrough = amount <= parseFloat(data.value || '0');
-        }
-
-        if (passThrough) {
-          for (const childId of children) {
-            queue.push({
-              nodeId: childId,
-              amount,
-              path: [...path, childId],
-            });
-          }
+        for (const childId of children) {
+          queue.push({
+            nodeId: childId,
+            amount: flowAmount,
+            path: [...path, childId],
+          });
         }
       } else {
         // Source or unknown: pass through to children

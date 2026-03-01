@@ -1,6 +1,6 @@
 'use client';
 
-import { Wallet, Split, Filter, User } from 'lucide-react';
+import { Wallet, Split, Clock as Filter, User } from 'lucide-react';
 
 const nodeTypes = [
   {
@@ -23,12 +23,12 @@ const nodeTypes = [
   },
   {
     type: 'filter',
-    label: 'Policy Filter',
+    label: 'Schedule',
     icon: Filter,
     color: 'text-yellow-600',
     bg: 'bg-yellow-50 dark:bg-yellow-950',
     border: 'border-yellow-300',
-    description: 'Apply rules to payouts',
+    description: 'Set payment interval & amount',
   },
   {
     type: 'recipient',

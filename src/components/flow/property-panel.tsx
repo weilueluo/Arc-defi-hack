@@ -134,31 +134,35 @@ export function PropertyPanel({ node, onUpdate, onDelete, onClose }: PropertyPan
         </>
       )}
 
-      {/* Filter node fields */}
+      {/* Schedule/Policy node fields */}
       {node.type === 'filter' && (
         <>
           <div className="space-y-1">
-            <Label className="text-xs">Condition</Label>
+            <Label className="text-xs">Pay Interval</Label>
             <Select
-              value={(data.condition as string) || 'min_amount'}
-              onValueChange={(v) => updateField('condition', v)}
+              value={(data.interval as string) || 'monthly'}
+              onValueChange={(v) => updateField('interval', v)}
             >
               <SelectTrigger className="h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="min_amount">Min Amount</SelectItem>
-                <SelectItem value="max_amount">Max Amount</SelectItem>
-                <SelectItem value="allowlist">Allowlist</SelectItem>
+                <SelectItem value="one_time">One-time</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Value</Label>
+            <Label className="text-xs">Amount (USDC)</Label>
             <Input
-              value={(data.value as string) || ''}
-              onChange={(e) => updateField('value', e.target.value)}
-              placeholder="10"
+              type="number"
+              value={(data.amount as string) || ''}
+              onChange={(e) => updateField('amount', e.target.value)}
+              placeholder="100"
               className="h-8 text-sm"
             />
           </div>

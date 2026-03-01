@@ -95,8 +95,8 @@ export interface SplitNodeData {
 
 export interface FilterNodeData {
   label: string;
-  condition: 'min_amount' | 'max_amount' | 'allowlist';
-  value: string;
+  interval: 'one_time' | 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
+  amount: string;
 }
 
 export interface RecipientNodeData {

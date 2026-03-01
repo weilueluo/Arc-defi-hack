@@ -30,7 +30,7 @@ import { NodePalette } from './node-palette';
 import { PropertyPanel } from './property-panel';
 import { SimulationPanel } from './simulation-panel';
 import { Button } from '@/components/ui/button';
-import { Save, Play, Zap, Undo2, Redo2 } from 'lucide-react';
+import { Save, Zap, Undo2, Redo2 } from 'lucide-react';
 import type { FlowNodeData, FlowEdgeData, SimulationResult } from '@/types';
 import { simulateFlow } from '@/lib/engine/simulate';
 
@@ -206,7 +206,7 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
       const defaults: Record<string, Record<string, unknown>> = {
         source: { label: 'Treasury', amount: '1000', address: '' },
         split: { label: 'Split', splits: [{ percentage: 50, label: 'A' }, { percentage: 50, label: 'B' }] },
-        filter: { label: 'Policy Filter', condition: 'min_amount', value: '10' },
+        filter: { label: 'Schedule', interval: 'monthly', amount: '100' },
         recipient: { label: 'Recipient', name: 'New Recipient', address: '' },
       };
 
@@ -248,7 +248,18 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
     setSelectedEdgeId(null);
   }, [saveSnapshot]);
 
-  const handleSimulate = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    if (!onSave) return;
+    setSaving(true);
+    try {
+      await onSave(nodes, edges);
+    } finally {
+      setSaving(false);
+    }
+  }, [nodes, edges, onSave]);
+
+  const handleExecute = useCallback(() => {
+    // Compute payout amounts from the graph
     const flowNodes: FlowNodeData[] = nodes.map((n) => ({
       id: n.id,
       type: n.type as FlowNodeData['type'],
@@ -262,23 +273,10 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
     }));
     const result = simulateFlow(flowNodes, flowEdges);
     setSimulation(result);
-  }, [nodes, edges]);
-
-  const handleSave = useCallback(async () => {
-    if (!onSave) return;
-    setSaving(true);
-    try {
-      await onSave(nodes, edges);
-    } finally {
-      setSaving(false);
+    if (result.items.length > 0 && onExecute) {
+      onExecute(result);
     }
-  }, [nodes, edges, onSave]);
-
-  const handleExecute = useCallback(() => {
-    if (simulation && onExecute) {
-      onExecute(simulation);
-    }
-  }, [simulation, onExecute]);
+  }, [nodes, edges, onExecute]);
 
   const proOptions = useMemo(() => ({ hideAttribution: true }), []);
 
@@ -327,16 +325,10 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
               <Save className="h-4 w-4 mr-1" />
               {saving ? 'Saving...' : 'Save'}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleSimulate}>
-              <Play className="h-4 w-4 mr-1" />
-              Simulate
+            <Button size="sm" onClick={handleExecute} className="bg-green-600 hover:bg-green-700">
+              <Zap className="h-4 w-4 mr-1" />
+              Execute Payout
             </Button>
-            {simulation && simulation.items.length > 0 && (
-              <Button size="sm" onClick={handleExecute} className="bg-green-600 hover:bg-green-700">
-                <Zap className="h-4 w-4 mr-1" />
-                Execute Payout
-              </Button>
-            )}
           </Panel>
           <Panel position="bottom-left" className="text-[10px] text-muted-foreground space-y-0.5">
             <div>Drag nodes from palette • Click node to edit • Delete/Backspace to remove</div>
