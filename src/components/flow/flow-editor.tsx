@@ -13,6 +13,7 @@ import {
   Node,
   Edge,
   Panel,
+  NodeMouseHandler,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -21,6 +22,7 @@ import SplitNode from './split-node';
 import FilterNode from './filter-node';
 import RecipientNode from './recipient-node';
 import { NodePalette } from './node-palette';
+import { PropertyPanel } from './property-panel';
 import { SimulationPanel } from './simulation-panel';
 import { Button } from '@/components/ui/button';
 import { Save, Play, Zap } from 'lucide-react';
@@ -46,6 +48,34 @@ export function FlowEditor({ initialNodes = [], initialEdges = [], onSave, onExe
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
   const [saving, setSaving] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+
+  const onNodeClick: NodeMouseHandler = useCallback((_event, node) => {
+    setSelectedNode(node);
+  }, []);
+
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+  }, []);
+
+  const handleNodeUpdate = useCallback(
+    (nodeId: string, data: Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((n) => (n.id === nodeId ? { ...n, data } : n))
+      );
+      setSelectedNode((prev) => (prev && prev.id === nodeId ? { ...prev, data } : prev));
+    },
+    [setNodes]
+  );
+
+  const handleNodeDelete = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+      setSelectedNode(null);
+    },
+    [setNodes, setEdges]
+  );
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#6366f1' } }, eds)),
@@ -131,6 +161,8 @@ export function FlowEditor({ initialNodes = [], initialEdges = [], onSave, onExe
           onConnect={onConnect}
           onDragOver={onDragOver}
           onDrop={onDrop}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           proOptions={proOptions}
           fitView
@@ -158,6 +190,14 @@ export function FlowEditor({ initialNodes = [], initialEdges = [], onSave, onExe
         </ReactFlow>
         {simulation && <SimulationPanel simulation={simulation} onClose={() => setSimulation(null)} />}
       </div>
+      {selectedNode && (
+        <PropertyPanel
+          node={selectedNode}
+          onUpdate={handleNodeUpdate}
+          onDelete={handleNodeDelete}
+          onClose={() => setSelectedNode(null)}
+        />
+      )}
     </div>
   );
 }
