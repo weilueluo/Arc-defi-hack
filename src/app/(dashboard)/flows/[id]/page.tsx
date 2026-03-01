@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Node, Edge } from '@xyflow/react';
 import { FlowEditor } from '@/components/flow/flow-editor';
 import { PayoutDialog } from '@/components/payout/payout-dialog';
+import { useWallet } from '@/components/providers/wallet-provider';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import type { SimulationResult, Flow } from '@/types';
@@ -13,6 +14,7 @@ export default function FlowEditorPage() {
   const params = useParams();
   const router = useRouter();
   const flowId = params.id as string;
+  const { address, usdcBalance } = useWallet();
 
   const [flow, setFlow] = useState<Flow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,6 +102,8 @@ export default function FlowEditorPage() {
       <FlowEditor
         initialNodes={initialNodes}
         initialEdges={initialEdges}
+        walletAddress={address || undefined}
+        usdcBalance={usdcBalance}
         onSave={handleSave}
         onExecute={handleExecute}
       />

@@ -50,11 +50,13 @@ const defaultEdgeOptions = {
 interface FlowEditorProps {
   initialNodes?: Node[];
   initialEdges?: Edge[];
+  walletAddress?: string;
+  usdcBalance?: string;
   onSave?: (nodes: Node[], edges: Edge[]) => Promise<void>;
   onExecute?: (simulation: SimulationResult) => void;
 }
 
-function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecute }: FlowEditorProps) {
+function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, usdcBalance, onSave, onExecute }: FlowEditorProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -63,6 +65,27 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
   const [saving, setSaving] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
+  // Auto-fill source nodes with connected wallet
+  useEffect(() => {
+    if (!walletAddress) return;
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.type === 'source') {
+          const d = n.data as Record<string, unknown>;
+          return {
+            ...n,
+            data: {
+              ...d,
+              address: d.address || walletAddress,
+              amount: d.amount || usdcBalance || '0',
+            },
+          };
+        }
+        return n;
+      })
+    );
+  }, [walletAddress, usdcBalance, setNodes]);
 
   // Undo/redo history
   const [history, setHistory] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([]);
@@ -204,7 +227,7 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], onSave, onExecu
       const id = `${type}-${Date.now()}`;
 
       const defaults: Record<string, Record<string, unknown>> = {
-        source: { label: 'Treasury', amount: '1000', address: '' },
+        source: { label: 'Treasury', amount: usdcBalance || '1000', address: walletAddress || '' },
         split: { label: 'Split', splits: [{ percentage: 50, label: 'A' }, { percentage: 50, label: 'B' }] },
         filter: { label: 'Schedule', interval: 'monthly', amount: '100' },
         recipient: { label: 'Recipient', name: 'New Recipient', address: '' },
