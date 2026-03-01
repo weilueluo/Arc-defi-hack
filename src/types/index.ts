@@ -71,6 +71,7 @@ export interface SimulationResult {
   items: SimulationItem[];
   totalAmount: string;
   sourceAddress: string;
+  sourceChain?: string;
 }
 
 export interface SimulationItem {
@@ -79,6 +80,7 @@ export interface SimulationItem {
   amount: string; // human-readable e.g. "100.50"
   percentage?: number;
   nodePath: string[];
+  network?: string;
 }
 
 // React Flow node data types

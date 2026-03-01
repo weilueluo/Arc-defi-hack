@@ -11,7 +11,9 @@ export async function connectWallet(): Promise<{ address: string; provider: Brow
 
   const provider = new BrowserProvider(window.ethereum);
 
-  // Request account access
+  // Force MetaMask to show the account-selection dialog even if the site
+  // already has a cached permission (e.g. after an explicit disconnect).
+  await provider.send('wallet_requestPermissions', [{ eth_accounts: {} }]);
   await provider.send('eth_requestAccounts', []);
 
   // Switch to or add Arc Testnet

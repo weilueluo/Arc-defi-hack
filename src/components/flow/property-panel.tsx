@@ -8,6 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Trash2 } from 'lucide-react';
 
+const NETWORK_OPTIONS = [
+  { value: 'arc', label: 'Arc Testnet' },
+  { value: 'ethereum', label: 'Ethereum → Arc' },
+  { value: 'polygon', label: 'Polygon → Arc' },
+  { value: 'arbitrum', label: 'Arbitrum → Arc' },
+  { value: 'base', label: 'Base → Arc' },
+  { value: 'solana', label: 'Solana → Arc' },
+];
+
 interface PropertyPanelProps {
   node: Node;
   onUpdate: (nodeId: string, data: Record<string, unknown>) => void;
@@ -91,6 +100,22 @@ export function PropertyPanel({ node, onUpdate, onDelete, onClose }: PropertyPan
               placeholder="0x..."
               className="h-8 text-sm font-mono"
             />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Source Network</Label>
+            <Select
+              value={(data.network as string) || 'arc'}
+              onValueChange={(v) => updateField('network', v)}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {NETWORK_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </>
       )}
@@ -189,6 +214,22 @@ export function PropertyPanel({ node, onUpdate, onDelete, onClose }: PropertyPan
               placeholder="0x..."
               className="h-8 text-sm font-mono"
             />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Destination Network</Label>
+            <Select
+              value={(data.network as string) || 'arc'}
+              onValueChange={(v) => updateField('network', v)}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {NETWORK_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </>
       )}

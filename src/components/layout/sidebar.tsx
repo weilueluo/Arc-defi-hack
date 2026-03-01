@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, GitBranch, History, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@/components/providers/wallet-provider';
+import { useNavigationGuard } from '@/components/providers/navigation-guard-provider';
 import { Badge } from '@/components/ui/badge';
 
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { address, usdcBalance, isConnected, isConnecting, connect } = useWallet();
+  const { requestNavigation } = useNavigationGuard();
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card">
@@ -30,18 +31,23 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
             (item.href !== '/' && pathname.startsWith(item.href));
           return (
-            <Link key={item.href} href={item.href}>
+            <button
+              key={item.href}
+              onClick={() => requestNavigation(item.href)}
+              className="w-full"
+            >
               <Button
                 variant={isActive ? 'secondary' : 'ghost'}
                 className={cn('w-full justify-start gap-2', isActive && 'font-semibold')}
+                asChild={false}
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
               </Button>
-            </Link>
+            </button>
           );
         })}
       </nav>

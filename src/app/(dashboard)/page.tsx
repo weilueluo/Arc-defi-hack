@@ -11,7 +11,7 @@ import { Wallet, GitBranch, History, Plus, ArrowRight, Zap } from 'lucide-react'
 import type { Flow, PayoutRun } from '@/types';
 
 export default function DashboardPage() {
-  const { isConnected, address, usdcBalance, ethBalance, connect, isConnecting } = useWallet();
+  const { isConnected, address, usdcBalance, ethBalance, connect, isConnecting, disconnect } = useWallet();
   const [flows, setFlows] = useState<Flow[]>([]);
   const [recentRuns, setRecentRuns] = useState<PayoutRun[]>([]);
 
@@ -59,10 +59,17 @@ export default function DashboardPage() {
       {/* Wallet Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
-            Treasury Wallet
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5" />
+              Treasury Wallet
+            </CardTitle>
+            {isConnected && (
+              <Button variant="outline" size="sm" onClick={disconnect}>
+                Disconnect
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {isConnected ? (
@@ -97,10 +104,17 @@ export default function DashboardPage() {
         {/* Recent Flows */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GitBranch className="h-5 w-5" />
-              Recent Flows
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <GitBranch className="h-5 w-5" />
+                Recent Flows
+              </CardTitle>
+              <Link href="/flows">
+                <Button variant="ghost" size="sm">
+                  View All <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
             {flows.length === 0 ? (
@@ -135,10 +149,17 @@ export default function DashboardPage() {
         {/* Recent Payouts */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              Recent Payouts
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Recent Payouts
+              </CardTitle>
+              <Link href="/history">
+                <Button variant="ghost" size="sm">
+                  View All <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
             {recentRuns.length === 0 ? (

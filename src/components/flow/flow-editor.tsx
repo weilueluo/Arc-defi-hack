@@ -54,9 +54,16 @@ interface FlowEditorProps {
   usdcBalance?: string;
   onSave?: (nodes: Node[], edges: Edge[]) => Promise<void>;
   onExecute?: (simulation: SimulationResult) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, usdcBalance, onSave, onExecute }: FlowEditorProps) {
+const serializeNodes = (nodes: Node[]) =>
+  JSON.stringify(nodes.map((n) => ({ id: n.id, type: n.type, position: n.position, data: n.data })));
+
+const serializeEdges = (edges: Edge[]) =>
+  JSON.stringify(edges.map((e) => ({ id: e.id, source: e.source, target: e.target })));
+
+function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, usdcBalance, onSave, onExecute, onDirtyChange }: FlowEditorProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -65,6 +72,20 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, 
   const [saving, setSaving] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
+  const savedNodesRef = useRef(serializeNodes(initialNodes));
+  const savedEdgesRef = useRef(serializeEdges(initialEdges));
+
+  const isDirty = useMemo(
+    () =>
+      serializeNodes(nodes) !== savedNodesRef.current ||
+      serializeEdges(edges) !== savedEdgesRef.current,
+    [nodes, edges]
+  );
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   // Auto-fill source nodes with connected wallet
   useEffect(() => {
@@ -227,10 +248,10 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, 
       const id = `${type}-${Date.now()}`;
 
       const defaults: Record<string, Record<string, unknown>> = {
-        source: { label: 'Treasury', amount: usdcBalance || '1000', address: walletAddress || '' },
+        source: { label: 'Treasury', amount: usdcBalance || '1000', address: walletAddress || '', network: 'arc' },
         split: { label: 'Split', splits: [{ percentage: 50, label: 'A' }, { percentage: 50, label: 'B' }] },
         filter: { label: 'Schedule', interval: 'monthly', amount: '100' },
-        recipient: { label: 'Recipient', name: 'New Recipient', address: '' },
+        recipient: { label: 'Recipient', name: 'New Recipient', address: '', network: 'arc' },
       };
 
       const newNode: Node = {
@@ -276,10 +297,15 @@ function FlowEditorInner({ initialNodes = [], initialEdges = [], walletAddress, 
     setSaving(true);
     try {
       await onSave(nodes, edges);
+      savedNodesRef.current = serializeNodes(nodes);
+      savedEdgesRef.current = serializeEdges(edges);
+      // Refs don't trigger re-renders, so notify the parent directly that the
+      // canvas is now clean rather than waiting for the useMemo to recompute.
+      onDirtyChange?.(false);
     } finally {
       setSaving(false);
     }
-  }, [nodes, edges, onSave]);
+  }, [nodes, edges, onSave, onDirtyChange]);
 
   const handleExecute = useCallback(() => {
     // Compute payout amounts from the graph

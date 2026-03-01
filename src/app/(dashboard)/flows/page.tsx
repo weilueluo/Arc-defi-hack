@@ -40,7 +40,7 @@ export default function FlowsPage() {
             id: 'source-1',
             type: 'source',
             position: { x: 250, y: 0 },
-            data: { label: 'Treasury', amount: '1000', address: '' },
+            data: { label: 'Treasury', amount: '1000', address: '', network: 'arc' },
           },
         ],
         edges: [],

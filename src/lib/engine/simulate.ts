@@ -34,6 +34,7 @@ export function simulateFlow(
   const items: SimulationItem[] = [];
   let totalAmount = 0;
   const sourceAddress = (sourceNodes[0].data as { address?: string }).address || '';
+  const sourceChain = (sourceNodes[0].data as { network?: string }).network || 'arc';
 
   // BFS/DFS from each source node
   for (const source of sourceNodes) {
@@ -54,12 +55,13 @@ export function simulateFlow(
 
       if (node.type === 'recipient') {
         // Terminal node: record payout
-        const data = node.data as { name?: string; address?: string };
+        const data = node.data as { name?: string; address?: string; network?: string };
         items.push({
           recipientAddress: data.address || '',
           recipientName: data.name || 'Unknown',
           amount: amount.toFixed(6),
           nodePath: path,
+          network: data.network || 'arc',
         });
         totalAmount += amount;
       } else if (node.type === 'split') {
@@ -106,5 +108,6 @@ export function simulateFlow(
     items,
     totalAmount: totalAmount.toFixed(6),
     sourceAddress,
+    sourceChain,
   };
 }
