@@ -1,7 +1,7 @@
 // Arc Testnet configuration
 export const ARC_TESTNET = {
   chainId: 5042002,
-  chainIdHex: '0x4cf1b2',
+  chainIdHex: '0x4cef52',
   name: 'Arc Testnet',
   rpcUrl: process.env.NEXT_PUBLIC_ARC_RPC_URL || 'https://rpc.testnet.arc.network',
   explorerUrl: process.env.NEXT_PUBLIC_ARC_EXPLORER_URL || 'https://testnet.arcscan.app',
