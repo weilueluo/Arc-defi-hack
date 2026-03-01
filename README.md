@@ -53,8 +53,8 @@ npm install
 2. Wait for the project to finish setting up
 3. Go to **Settings → API** and note:
    - **Project URL** (e.g., `https://abcdefgh.supabase.co`)
-   - **anon (public) key** — safe for client-side
-   - **service_role key** — server-side only, keep secret!
+   - **Publishable key** — safe for client-side
+   - **Secret key** — server-side only, keep secret!
 
 ### Step 3: Run Database Migrations
 
@@ -74,8 +74,8 @@ Edit `.env.local` with your values:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=eyJ...your-service-role-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJ...your-publishable-key
+SUPABASE_SECRET_KEY=eyJ...your-secret-key
 
 # These are already set correctly for Arc Testnet:
 NEXT_PUBLIC_ARC_RPC_URL=https://rpc.testnet.arc.network
@@ -194,7 +194,7 @@ src/
 |-------|---------|------|
 | UI Components | Client (browser) | `NEXT_PUBLIC_*` only |
 | Wallet Signing | Client (MetaMask) | User's wallet key |
-| API Routes | Server (Node.js) | `SUPABASE_SERVICE_ROLE_KEY`, `CIRCLE_API_KEY` |
+| API Routes | Server (Node.js) | `SUPABASE_SECRET_KEY`, `CIRCLE_API_KEY` |
 | Server Executor | Server (optional) | `PAYOUT_EXECUTOR_PRIVATE_KEY` |
 
 ---
@@ -234,7 +234,7 @@ You need testnet ETH for gas. Visit the Arc faucet to get some.
 - Check [Arc status](https://testnet.arcscan.app) for network health
 
 ### Supabase connection errors
-- Verify your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are correct
+- Verify your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are correct
 - Make sure you ran the migration SQL in Step 3
 - Check that RLS policies were created (the migration includes them)
 
