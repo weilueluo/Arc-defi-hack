@@ -20,8 +20,9 @@ export async function connectWallet(): Promise<{ address: string; provider: Brow
       { chainId: ARC_TESTNET.chainIdHex },
     ]);
   } catch (switchError: unknown) {
-    const err = switchError as { code?: number };
-    if (err.code === 4902) {
+    const err = switchError as { code?: number; error?: { code?: number } };
+    const code = err.code ?? err.error?.code;
+    if (code === 4902) {
       await provider.send('wallet_addEthereumChain', [ARC_TESTNET_CHAIN_CONFIG]);
     } else {
       throw switchError;
